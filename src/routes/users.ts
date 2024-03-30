@@ -1,6 +1,8 @@
 import express from "express";
 import { signUp, verifyOtp } from "../controllers/users";
+import { login, validateToken, verifyLoginOtp } from "../controllers/auth";
 import { check } from "express-validator";
+import { verifyToken } from "../middlewares/auth";
 
 const router = express.Router();
 
@@ -21,5 +23,25 @@ router.post(
   ],
   verifyOtp
 );
+
+router.post(
+  "/login",
+  [
+    check("email", "email is required").isEmail(),
+    check("password", "password is required").isString(),
+  ],
+  login
+);
+router.post(
+  "/verify-login-otp",
+  [
+    check("email", "email is required").isEmail(),
+    check("password", "password is required").isString(),
+    check("otp", "otp is required").isString(),
+  ],
+  verifyLoginOtp
+);
+
+router.get("/validate-token", verifyToken, validateToken);
 
 export default router;

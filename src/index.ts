@@ -1,7 +1,8 @@
 import express from "express";
 import mongoose from "mongoose";
-import "dotenv/config";
 import cors from "cors";
+import cookieParser from "cookie-parser";
+import "dotenv/config";
 import errorMiddleWare from "./middlewares/error-middlware";
 import userRouter from "./routes/users";
 
@@ -11,7 +12,14 @@ mongoose.connect(process.env.MONGODB_CONNECTION_STRING as string);
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "*",
+    credentials: true,
+  })
+);
+
+app.use(cookieParser());
 app.use(express.json()); // to parse JSON bodies
 app.use(express.urlencoded({ extended: false })); // to parse URL-encoded bodies
 app.use("/api/v1", userRouter);

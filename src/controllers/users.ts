@@ -1,30 +1,11 @@
 import { Request, Response, NextFunction } from "express";
 import asyncWrapper from "../async-wrapper/async-wrapper";
-import nodemailer, { SentMessageInfo } from "nodemailer";
-import crypto from "crypto";
+import { SentMessageInfo } from "nodemailer";
 import { BadRequestError } from "../errors";
-import User from "../../models/user";
-import OTPHolder from "../../models/otpHolder";
+import User from "../models/user";
+import OTPHolder from "../models/otpHolder";
 import { validationResult } from "express-validator";
-
-const transport = nodemailer.createTransport({
-  service: "Gmail",
-  auth: {
-    user: process.env.email,
-    pass: process.env.email_password,
-  },
-  tls: {
-    rejectUnauthorized: false,
-  },
-});
-
-const generateOtp = () => {
-  const buffer = crypto.randomBytes(3);
-  const otp = Math.abs(buffer.readIntLE(0, 3) % 1000000)
-    .toString()
-    .padStart(6, "0");
-  return otp;
-};
+import { transport, generateOtp } from "../utils/utils";
 
 const signUp = asyncWrapper(
   async (req: Request, res: Response, next: NextFunction) => {
