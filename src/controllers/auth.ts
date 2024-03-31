@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import asyncWrapper from "../async-wrapper/async-wrapper";
 import { validationResult } from "express-validator";
 import { SentMessageInfo } from "nodemailer";
+import passport from "passport";
 import bcrypt from "bcryptjs";
 import User from "../models/user";
 import { BadRequestError } from "../errors";
@@ -95,4 +96,4 @@ const validateToken = asyncWrapper(
   }
 );
 
-export { login, verifyLoginOtp, validateToken };
+export { login, verifyLoginOtp, validateToken, passport };

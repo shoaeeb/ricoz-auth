@@ -20,4 +20,8 @@ const generateOtp = () => {
   return otp;
 };
 
-export { transport, generateOtp };
+function generatePassword() {
+  return crypto.randomBytes(20).toString("hex");
+}
+
+export { transport, generateOtp, generatePassword };
