@@ -5,14 +5,17 @@ import jwt from "jsonwebtoken";
 export type UserType = {
   _id: string;
   email: string;
-  username: string;
   password: string;
+  profilePic: string;
+  name: string;
   generateToken: () => string;
 };
 
 const userSchema = new mongoose.Schema<UserType>({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  profilePic: { type: String, default: "" },
+  name: { type: String, default: "" },
 });
 
 userSchema.methods.generateToken = function () {

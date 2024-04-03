@@ -1,10 +1,11 @@
 import "dotenv/config";
 
-import express from "express";
+import express, { Request, Response } from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import session from "express-session";
+import jwt from "jsonwebtoken";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { Profile } from "passport-google-oauth20";
 
@@ -13,6 +14,7 @@ import errorMiddleWare from "./middlewares/error-middlware";
 import userRouter from "./routes/users";
 import User, { UserType } from "./models/user";
 import { generatePassword } from "./utils/utils";
+import { verifyToken } from "./middlewares/auth";
 
 const port = process.env.PORT || 3000;
 
@@ -40,8 +42,6 @@ passport.use(
       profile: Profile,
       cb: (error: any, user?: any) => void
     ) {
-      console.log("profile");
-      console.log(profile);
       const existingUser = await User.findOne({
         email: profile.emails?.[0]?.value,
       });
@@ -51,6 +51,7 @@ passport.use(
         const newUser = new User({
           email: profile.emails?.[0]?.value,
           password: generatePassword(),
+          profilePic: profile.profileUrl,
         });
         await newUser.save();
         return cb(null, newUser);
@@ -75,24 +76,23 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.serializeUser((user: any, done: (error: any, id?: string) => void) => {
+passport.serializeUser((user: any, done: (error: any, user?: any) => void) => {
   if (user._id === undefined) {
     done(new Error("No user id"));
   } else {
-    done(null, user._id);
+    console.log(user);
+    done(null, user._id.toString());
   }
 });
 
-passport.deserializeUser(
-  async (id, done: (error: any, id?: string) => void) => {
-    const user = await User.findById(id);
-    if (!user) {
-      done(new Error(`No user found with id ${id}`));
-    } else {
-      done(null, user._id);
-    }
+passport.deserializeUser(async (id, done: (error: any, user?: any) => void) => {
+  const existingUser = await User.findById(id);
+  if (!existingUser) {
+    done(new Error(`No user found with id ${id}`));
+  } else {
+    done(null, existingUser);
   }
-);
+});
 
 app.use("/api/v1", userRouter);
 
@@ -103,12 +103,26 @@ app.get(
 
 app.get(
   "/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: "/login" }),
-  function (req, res) {
+  passport.authenticate("google", { failureRedirect: "/api/v1/login" }),
+  function (req: any, res: any) {
     // Successful authentication, redirect home.
+    if (!req.user) {
+      return;
+    }
+    console.log("Request", req?.user._id);
+    const token = jwt.sign(
+      { userId: req.user._id },
+      process.env.JWT_SECRET_KEY as string
+    );
+    res.cookie("auth_token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 1000 * 60 * 60 * 24, // 1 day
+    });
     res.redirect("/");
   }
 );
+
 app.use(errorMiddleWare);
 
 app.listen(port, () => {

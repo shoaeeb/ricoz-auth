@@ -1,5 +1,10 @@
 import express from "express";
-import { signUp, verifyOtp } from "../controllers/users";
+import {
+  getName,
+  getProfilePicture,
+  signUp,
+  verifyOtp,
+} from "../controllers/users";
 import { login, validateToken, verifyLoginOtp } from "../controllers/auth";
 import { check } from "express-validator";
 import { verifyToken } from "../middlewares/auth";
@@ -43,5 +48,7 @@ router.post(
 );
 
 router.get("/validate-token", verifyToken, validateToken);
+router.get("/profilePic", verifyToken, getProfilePicture);
+router.get("/name", verifyToken, getName);
 
 export default router;

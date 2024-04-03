@@ -80,4 +80,26 @@ const verifyOtp = asyncWrapper(
   }
 );
 
-export { signUp, verifyOtp };
+const getProfilePicture = asyncWrapper(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const user = await User.findById(req.userId);
+    if (!user) {
+      throw new BadRequestError("User not found");
+    }
+    res.status(200).json({ message: user.profilePic });
+  }
+);
+
+const getName = asyncWrapper(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const user = await User.findById(req.userId);
+    if (!user) {
+      throw new BadRequestError("User not found");
+    }
+    res.status(200).json({
+      messsage: user.name,
+    });
+  }
+);
+
+export { signUp, verifyOtp, getProfilePicture, getName };
