@@ -15,6 +15,7 @@ import userRouter from "./routes/users";
 import User, { UserType } from "./models/user";
 import { generatePassword } from "./utils/utils";
 import { verifyToken } from "./middlewares/auth";
+import customerRouter from "./routes/customers";
 
 const port = process.env.PORT || 3000;
 
@@ -95,6 +96,7 @@ passport.deserializeUser(async (id, done: (error: any, user?: any) => void) => {
 });
 
 app.use("/api/v1", userRouter);
+app.use("/api/v1/customers", customerRouter);
 
 app.get(
   "/auth/google",
