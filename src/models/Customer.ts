@@ -13,7 +13,7 @@ export type CustomerType = {
 };
 
 const customerSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   salutation: {
     type: String,
     required: true,

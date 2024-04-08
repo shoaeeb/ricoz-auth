@@ -6,17 +6,25 @@ import User from "../models/user";
 import OTPHolder from "../models/otpHolder";
 import { validationResult } from "express-validator";
 import { transport, generateOtp } from "../utils/utils";
+import fetch from "node-fetch";
 
 const signUp = asyncWrapper(
   async (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      res.status(400).json({ errors: errors.array() });
+      res.status(400).json({
+        errors: errors
+          .array()
+          .map((error: any) => error.path + " " + error.msg),
+      });
       return;
     }
-    const { email, password } = req.body;
+    const { email, password, name } = req.body;
 
-    const user = await User.findOne({ email });
+    let { phone } = req.body;
+    phone = phone.replace("+", "");
+
+    const user = await User.findOne({ email, phone });
     if (user) {
       throw new BadRequestError("User already exists");
     }
@@ -25,33 +33,25 @@ const signUp = asyncWrapper(
       email,
     });
     if (otpHolder) {
-      res.status(400).json({ error: "OTP already Sent" });
-      return;
+      await OTPHolder.deleteOne({ email });
     }
-    otpHolder = new OTPHolder({ email, otp, createdAt: Date.now() });
+    otpHolder = new OTPHolder({
+      email,
+      otp,
+      name,
+      password,
+      createdAt: Date.now(),
+      phone,
+    });
     await otpHolder.save();
 
-    const mailOptions = {
-      from: process.env.email,
-      to: email,
-      subject: "Email Verifiction",
-      text: otp,
-    };
-
-    transport.sendMail(
-      mailOptions,
-      (err: Error | null, info: SentMessageInfo) => {
-        if (err) {
-          console.log(err);
-          next(err);
-          return;
-        } else {
-          res
-            .status(200)
-            .json({ message: `OTP sent to ${email} valid for 2 minutes` });
-        }
-      }
+    const message = await fetch(
+      `https://smsgw.tatatel.co.in:9095/campaignService/campaigns/qs?dr=false&sender=FRICOZ&recipient=${phone}&msg=Dear Customer, Your OTP for mobile number verification is ${otp}. Please do not share this OTP to anyone - Firstricoz Pvt. Ltd.&user=FIRSTR&pswd=First^01&PE_ID=1601832170235925649&Template_ID=1607100000000306120`
     );
+
+    const response = await message.json();
+    console.log(response);
+    res.status(200).json({ message: `OTP sent sent to your phone ${phone} ` });
   }
 );
 
@@ -62,14 +62,18 @@ const verifyOtp = asyncWrapper(
       res.status(400).json({ errors: errors.array() });
       return;
     }
-    const { email, password, otp } = req.body;
+    const { email, otp } = req.body;
     const otpHolder = await OTPHolder.findOne({ email, otp });
     if (!otpHolder) {
       throw new BadRequestError("Invalid OTP");
     }
-    await OTPHolder.deleteOne({ email }); // delete the otp after verification
-    const user = new User({ email, password });
+    const name = otpHolder.name;
+    const password = otpHolder.password;
+    const phone = otpHolder.phone;
+    const user = new User({ email, password, name, phone });
     await user.save();
+    await OTPHolder.deleteOne({ email }); // delete the otp after verification
+
     const token = user.generateToken();
     res.cookie("auth_token", token, {
       httpOnly: true,

@@ -8,6 +8,7 @@ export type UserType = {
   password: string;
   profilePic: string;
   name: string;
+  phone: string;
   generateToken: () => string;
 };
 
@@ -16,6 +17,7 @@ const userSchema = new mongoose.Schema<UserType>({
   password: { type: String, required: true },
   profilePic: { type: String, default: "" },
   name: { type: String, default: "" },
+  phone: { type: String, required: true, unique: true },
 });
 
 userSchema.methods.generateToken = function () {

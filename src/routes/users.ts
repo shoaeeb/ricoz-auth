@@ -16,6 +16,8 @@ router.post(
   [
     check("email", "email is required").isEmail(),
     check("password", "password is required").isString(),
+    check("name", "name is required").isString(),
+    check("phone", "phone is required").isString(),
   ],
   signUp
 );
@@ -23,7 +25,6 @@ router.post(
   "/verify-otp",
   [
     check("email", "email is required").isEmail(),
-    check("password", "password is required").isString(),
     check("otp", "otp is required").isString(),
   ],
   verifyOtp
@@ -41,7 +42,6 @@ router.post(
   "/verify-login-otp",
   [
     check("email", "email is required").isEmail(),
-    check("password", "password is required").isString(),
     check("otp", "otp is required").isString(),
   ],
   verifyLoginOtp
