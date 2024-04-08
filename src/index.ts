@@ -16,8 +16,9 @@ import User, { UserType } from "./models/user";
 import { generatePassword } from "./utils/utils";
 import { verifyToken } from "./middlewares/auth";
 import customerRouter from "./routes/customers";
+import swaggerDocs from "./utils/swagger";
 
-const port = process.env.PORT || 3000;
+const port = Number(process.env.PORT) || 3000;
 
 mongoose.connect(process.env.MONGODB_CONNECTION_STRING as string);
 
@@ -98,6 +99,18 @@ passport.deserializeUser(async (id, done: (error: any, user?: any) => void) => {
 app.use("/api/v1", userRouter);
 app.use("/api/v1/customers", customerRouter);
 
+/**
+ * @openapi
+ *   /auth/google:
+ *      get:
+ *        tags:
+ *            - "User"
+ *        responses:
+ *              "200":
+ *                    description : "User LoggedIn / User Created Successfully"
+ *
+ *
+ */
 app.get(
   "/auth/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
@@ -130,3 +143,5 @@ app.use(errorMiddleWare);
 app.listen(port, () => {
   console.log(`server is listening to ${port}`);
 });
+
+swaggerDocs(app, port);
