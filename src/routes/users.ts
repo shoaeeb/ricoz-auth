@@ -46,27 +46,26 @@ router.post(
   ],
   signUp
 );
-
 /**
  * @openapi
  * /api/v1/verify-otp:
- *    post:
- *      tags:
- *         - "User"
- *      description: "Verify OTP for Sign Up"
- *      requestBody:
- *        content:
- *          application/json:
- *              schema:
- *                type: "object"
- *                properties:
- *                  email:
- *                    type:"string"
- *                  otp:
- *                    type:"string"
- *      responses:
- *               "201":
- *                  description: "User Created Succesfully"
+ *   post:
+ *     tags:
+ *       - User
+ *     description: Verify OTP for Sign Up
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               otp:
+ *                 type: string
+ *     responses:
+ *       '201':
+ *         description: User Created Successfully
  */
 router.post(
   "/verify-otp",

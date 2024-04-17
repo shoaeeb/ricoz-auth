@@ -18,11 +18,11 @@ import { verifyToken } from "./middlewares/auth";
 import customerRouter from "./routes/customers";
 import swaggerDocs from "./utils/swagger";
 
+import { server, app } from "./socket/socket";
+
 const port = Number(process.env.PORT) || 3000;
 
 mongoose.connect(process.env.MONGODB_CONNECTION_STRING as string);
-
-const app = express();
 
 app.use(
   cors({
@@ -140,7 +140,7 @@ app.get(
 
 app.use(errorMiddleWare);
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`server is listening to ${port}`);
 });
 

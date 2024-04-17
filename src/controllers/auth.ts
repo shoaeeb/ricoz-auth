@@ -52,7 +52,9 @@ const login = asyncWrapper(
     );
 
     const response = await message.json();
-    res.status(200).json({ message: `OTP sent sent to your phone ${phone} ` });
+    res
+      .status(200)
+      .json({ message: `OTP sent sent to your phone ${phone} otp:${otp} ` });
   }
 );
 

@@ -51,7 +51,7 @@ const signUp = asyncWrapper(
 
     const response = await message.json();
     console.log(response);
-    res.status(200).json({ message: `OTP sent sent to your phone ${phone} ` });
+    res.status(200).json({ message: `OTP sent sent to your phone ${phone} otp:${otp}` });
   }
 );
 
