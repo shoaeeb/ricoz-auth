@@ -49,9 +49,17 @@ const signUp = asyncWrapper(
       `https://smsgw.tatatel.co.in:9095/campaignService/campaigns/qs?dr=false&sender=FRICOZ&recipient=${phone}&msg=Dear Customer, Your OTP for mobile number verification is ${otp}. Please do not share this OTP to anyone - Firstricoz Pvt. Ltd.&user=FIRSTR&pswd=First^01&PE_ID=1601832170235925649&Template_ID=1607100000000306120`
     );
 
-    const response = await message.json();
-    console.log(response);
-    res.status(200).json({ message: `OTP sent sent to your phone ${phone} otp:${otp}` });
+    const response = {
+      statusCode: "200",
+      success: true,
+      message: "OTP sent to your phone number",
+      data: {
+        phoneNumber: phone,
+        otp,
+      },
+    };
+
+    res.status(200).json(response);
   }
 );
 
@@ -75,12 +83,19 @@ const verifyOtp = asyncWrapper(
     await OTPHolder.deleteOne({ email }); // delete the otp after verification
 
     const token = user.generateToken();
-    res.cookie("auth_token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 1000 * 60 * 60 * 24,
-    });
-    res.status(201).json({ message: "User Created Succesfully" });
+    const response = {
+      statusCode: "201",
+      success: true,
+      message: "OTP verified successfully",
+      data: {
+        data: {
+          user,
+        },
+        token,
+      },
+    };
+
+    res.status(201).json(response);
   }
 );
 
@@ -90,7 +105,15 @@ const getProfilePicture = asyncWrapper(
     if (!user) {
       throw new BadRequestError("User not found");
     }
-    res.status(200).json({ message: user.profilePic });
+    const response = {
+      success: true,
+      message: "Profile Picture Fetched Successfully",
+      statusCode: "200",
+      data: {
+        profilePic: user.profilePic,
+      },
+    };
+    res.status(200).json(response);
   }
 );
 
@@ -100,9 +123,15 @@ const getName = asyncWrapper(
     if (!user) {
       throw new BadRequestError("User not found");
     }
-    res.status(200).json({
-      messsage: user.name,
-    });
+    const response = {
+      success: true,
+      message: "Name Fetched Successfully",
+      statusCode: "200",
+      data: {
+        name: user.name,
+      },
+    };
+    res.status(200).json(response);
   }
 );
 

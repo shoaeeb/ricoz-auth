@@ -51,10 +51,17 @@ const login = asyncWrapper(
       `https://smsgw.tatatel.co.in:9095/campaignService/campaigns/qs?dr=false&sender=FRICOZ&recipient=${phone}&msg=Dear Customer, Your OTP for mobile number verification is ${otp}. Please do not share this OTP to anyone - Firstricoz Pvt. Ltd.&user=FIRSTR&pswd=First^01&PE_ID=1601832170235925649&Template_ID=1607100000000306120`
     );
 
-    const response = await message.json();
-    res
-      .status(200)
-      .json({ message: `OTP sent sent to your phone ${phone} otp:${otp} ` });
+    const response = {
+      statusCode: 200,
+      success: true,
+      message: "OTP sent to your phone number",
+      data: {
+        phoneNumber: phone,
+        otp,
+      },
+    };
+
+    res.status(200).json(response);
   }
 );
 
@@ -76,13 +83,21 @@ const verifyLoginOtp = asyncWrapper(
       throw new BadRequestError("Invalid OTP");
     }
     const token = user.generateToken();
-    res.cookie("auth_token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 1000 * 60 * 60 * 24, // 1day
-    });
 
-    res.status(200).json({ message: "User Signed In" });
+    const response = {
+      statusCode: "200",
+      success: true,
+      message: "OTP verified successfully",
+      data: {
+        data: {
+          _id: user._id,
+          phoneNumber: user.phone,
+        },
+        token,
+      },
+    };
+
+    res.status(200).json(response);
   }
 );
 

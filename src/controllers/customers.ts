@@ -34,7 +34,13 @@ export const addCustomer = asyncWrapper(
       salutation,
     });
     await newCustomer.save();
-    res.status(200).json(newCustomer);
+    const response = {
+      statusCode: 201,
+      success: true,
+      message: "Customer created successfully",
+      data: newCustomer,
+    };
+    res.status(200).json(response);
   }
 );
 
@@ -58,6 +64,12 @@ export const getCustomer = asyncWrapper(
         .json({ errors: `Customer not found with id ${customerId}` });
       return;
     }
-    res.status(200).json(customer);
+    const response = {
+      statusCode: 200,
+      success: true,
+      message: "Customer found successfully",
+      data: customer,
+    };
+    res.status(200).json(response);
   }
 );

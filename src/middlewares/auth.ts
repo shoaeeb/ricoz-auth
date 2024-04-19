@@ -13,16 +13,13 @@ declare global {
 
 const verifyToken = asyncWrapper(
   async (req: Request, res: Response, next: NextFunction) => {
-    const auth_token = req.cookies["auth_token"];
-    if (!auth_token) {
-      throw new UnauthorizedError("Unauthorized");
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader?.startsWith("Bearer ")) {
+      throw new UnauthorizedError("Token is missing");
     }
-    const decoded = jwt.verify(
-      auth_token,
-      process.env.JWT_SECRET_KEY as string
-    );
-    const userId = (decoded as JwtPayload).userId;
-    req.userId = userId;
+    const token = authHeader.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY as string);
+    req.userId = (decoded as JwtPayload).userId;
     next();
   }
 );
