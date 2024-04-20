@@ -90,8 +90,7 @@ const verifyLoginOtp = asyncWrapper(
       message: "OTP verified successfully",
       data: {
         data: {
-          _id: user._id,
-          phoneNumber: user.phone,
+          user,
         },
         token,
       },
