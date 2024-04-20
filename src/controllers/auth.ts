@@ -56,8 +56,7 @@ const login = asyncWrapper(
       success: true,
       message: "OTP sent to your phone number",
       data: {
-        phoneNumber: phone,
-        otp,
+        user,
       },
     };
 
